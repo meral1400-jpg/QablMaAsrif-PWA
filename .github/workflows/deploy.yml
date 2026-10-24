@@ -1,0 +1,58 @@
+name: Publish Before I Spend iPhone PWA
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check app shell, manifest and JavaScript
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s index.html
+          test -s apple-touch-icon.png
+          test -s sw.js
+          node --check sw.js
+          python3 - <<'PY'
+          import pathlib,re,json
+          html=pathlib.Path('index.html').read_text(encoding='utf-8')
+          m=json.loads(pathlib.Path('manifest.webmanifest').read_text(encoding='utf-8'))
+          assert m['display']=='standalone'
+          assert 'فكرة وتطوير: سلطان السلطان' in html
+          assert 'rel="manifest"' in html
+          assert "serviceWorker.register('./sw.js'" in html
+          scripts=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',html,re.S)
+          assert len(scripts)>=2
+          for i,s in enumerate(scripts):
+              pathlib.Path(f'/tmp/qma-js-{i}.js').write_text(s)
+          PY
+          for p in /tmp/qma-js-*.js; do node --check "$p"; done
+  deploy:
+    needs: verify
+    if: ${{ github.event.repository.private == false }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Upload the static website files
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

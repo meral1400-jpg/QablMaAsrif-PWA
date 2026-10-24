@@ -1,0 +1,28 @@
+{
+  "name": "قبل ما أصرف — إدارة المال والأولويات",
+  "short_name": "قبل ما أصرف",
+  "description": "دوّن دخلك ومصروفاتك واحتياجاتك ورتّب أولوياتك. بياناتك تبقى على جهازك.",
+  "lang": "ar",
+  "dir": "rtl",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f7f6",
+  "theme_color": "#142b42",
+  "icons": [
+    {
+      "src": "./apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
